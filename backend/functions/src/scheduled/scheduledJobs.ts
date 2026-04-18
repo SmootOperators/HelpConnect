@@ -1,5 +1,5 @@
 import { onSchedule } from "firebase-functions/v2/scheduler";
-import { db, Timestamp, FieldValue } from "../utils/admin";
+import { db, Timestamp } from "../utils/admin";
 
 /**
  * Daily at 02:00 UTC: Archive completed tasks older than 90 days

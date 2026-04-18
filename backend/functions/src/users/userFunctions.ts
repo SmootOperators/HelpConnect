@@ -1,5 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { db, FieldValue, Timestamp } from "../utils/admin";
+import { db, Timestamp } from "../utils/admin";
 import { assertRole } from "../utils/rbac";
 import { writeAuditLog } from "../utils/audit";
 

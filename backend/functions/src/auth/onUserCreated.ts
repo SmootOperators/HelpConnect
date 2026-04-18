@@ -1,12 +1,11 @@
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
-import * as functions from "firebase-functions/v2/auth";
+import { AuthBlockingEvent, beforeUserCreated } from "firebase-functions/v2/identity";
 import { db, Timestamp } from "../utils/admin";
 
 /**
  * Triggered when a new user signs up via Firebase Auth.
  * Creates the initial user document in Firestore.
  */
-export const onUserCreated = functions.beforeUserCreated(async (event) => {
+export const onUserCreated = beforeUserCreated(async (event: AuthBlockingEvent) => {
   const user = event.data;
   if (!user) return;
 

@@ -1,6 +1,6 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { db, Timestamp, FieldValue } from "../utils/admin";
-import { assertVerifiedNGO, assertRole } from "../utils/rbac";
+import { db, Timestamp } from "../utils/admin";
+import { assertVerifiedNGO } from "../utils/rbac";
 import { writeAuditLog } from "../utils/audit";
 import { geohashForLocation } from "geofire-common";
 

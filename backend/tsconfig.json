@@ -9,8 +9,9 @@
     "target": "es2020",
     "lib": ["es2020"],
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "rootDir": "functions/src"
   },
   "compileOnSave": true,
-  "include": ["src"]
+  "include": ["functions/src"]
 }

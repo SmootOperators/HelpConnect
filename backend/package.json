@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
-    "serve": "npm run build && firebase emulators:start --only functions",
-    "deploy": "firebase deploy --only functions",
-    "lint": "eslint src/**/*.ts",
+    "serve": "npm run build && firebase emulators:start --project demo-helpconnect --config firebase.json --only functions",
+    "serve:full": "npm run build && firebase emulators:start --project demo-helpconnect --config firebase.json --only functions,firestore,auth",
+    "emulators": "firebase emulators:start --project demo-helpconnect --config firebase.json",
+    "deploy": "firebase deploy --config firebase.json --only functions,firestore:rules,firestore:indexes",
+    "lint": "eslint functions/src/**/*.ts",
     "test": "jest"
   },
-  "engines": { "node": "20" },
+  "engines": {
+    "node": "20"
+  },
   "main": "lib/index.js",
   "dependencies": {
     "firebase-admin": "^12.0.0",
@@ -17,11 +21,12 @@
     "twilio": "^5.0.0"
   },
   "devDependencies": {
+    "@types/jest": "^29.0.0",
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
     "eslint": "^8.0.0",
+    "firebase-tools": "^15.15.0",
     "jest": "^29.0.0",
     "ts-jest": "^29.0.0",
-    "@types/jest": "^29.0.0"
+    "typescript": "^5.0.0"
   }
 }

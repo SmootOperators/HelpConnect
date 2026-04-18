@@ -1,6 +1,6 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { db, Timestamp, FieldValue } from "../utils/admin";
-import { assertVerifiedNGO, assertRole, getUserRole } from "../utils/rbac";
+import { getUserRole } from "../utils/rbac";
 import { writeAuditLog } from "../utils/audit";
 
 const VALID_TASK_STATUSES = ["pending", "accepted", "in_progress", "completed", "cancelled"];
