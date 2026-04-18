@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────────────────────
+    function isAuthed() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isAuthed() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    function isNGO() {
+      return isAuthed() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ngo';
+    }
+    function isVerifiedNGO() {
+      return isNGO() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.ngoVerified == true;
+    }
+    function isVolunteer() {
+      return isAuthed() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'volunteer';
+    }
+    function isSelf(uid) {
+      return isAuthed() && request.auth.uid == uid;
+    }
+
+    // ── Users ──────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isAuthed();
+      allow create: if isSelf(userId) &&
+        request.resource.data.role in ['volunteer', 'ngo'] &&
+        request.resource.data.keys().hasAll(['uid','email','role','createdAt']);
+      allow update: if (isSelf(userId) &&
+        !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['role','ngoVerified','activeTaskCount'])) ||
+        isAdmin();
+      allow delete: if isAdmin() || isSelf(userId);
+    }
+
+    // ── Needs ──────────────────────────────────────────────────────
+    match /needs/{needId} {
+      allow read: if isAuthed();
+      allow create: if isVerifiedNGO() &&
+        request.resource.data.ngoId == request.auth.uid &&
+        request.resource.data.urgency is int &&
+        request.resource.data.urgency >= 1 &&
+        request.resource.data.urgency <= 5 &&
+        request.resource.data.category in
+          ['medical','food','shelter','education','logistics','other'] &&
+        request.resource.data.volunteersNeeded is int &&
+        request.resource.data.volunteersNeeded >= 1 &&
+        request.resource.data.volunteersNeeded <= 100;
+      allow update: if (isVerifiedNGO() && resource.data.ngoId == request.auth.uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Tasks ──────────────────────────────────────────────────────
+    match /tasks/{taskId} {
+      allow read: if isAuthed() && (
+        resource.data.volunteerId == request.auth.uid ||
+        resource.data.ngoId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAdmin() || isVerifiedNGO();
+      allow update: if (
+        (isVolunteer() && resource.data.volunteerId == request.auth.uid &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status','notes','updatedAt'])) ||
+        (isVerifiedNGO() && resource.data.ngoId == request.auth.uid) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ── Audit Logs ─────────────────────────────────────────────────
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // written only by Cloud Functions
+    }
+  }
+}
